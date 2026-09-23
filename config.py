@@ -3,7 +3,7 @@ import oracledb
 
 from flask_sqlalchemy import SQLAlchemy
 
-oracledb.init_oracle_client(lib_dir=r"C:\oraclexe\instantclient_19_25")
+#oracledb.init_oracle_client(lib_dir=r"C:\oraclexe\instantclient_19_25")
 
 BASE_DIR = os.path.dirname(__file__)
 print("BASE_DIR:", BASE_DIR)
