@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도서 목록</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"> 도서 보유 목록</h4>
+                <span class="badge bg-light text-primary">총 {{ books|length }}권</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0 text-center align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 15%;">도서 번호</th>
+                            <th style="width: 40%;">도서명</th>
+                            <th style="width: 25%;">출판사</th>
+                            <th style="width: 20%;">정가</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if books %}
+                            {% for book in books %}
+                            <tr>
+                                <td>{{ book.bookid }}</td>
+                                <td class="text-start ps-4 fw-semibold">{{ book.bookname }}</td>
+                                <td>{{ book.publisher if book.publisher else '-' }}</td>
+                                <td class="text-end pe-4">
+                                    {% if book.price %}
+                                        {{ "{:,}".format(book.price) }}원
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="py-4 text-muted">등록된 도서 데이터가 없습니다.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
