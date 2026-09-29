@@ -1,0 +1,448 @@
+:root {
+  --bg-body: #0b0f19;
+  --bg-surface: #111827;
+  --bg-card: #1f2937;
+  --border-color: #374151;
+  --text-main: #f9fafb;
+  --text-sub: #9ca3af;
+  --primary: #06b6d4;
+  --primary-hover: #0891b2;
+  --accent-green: #10b981;
+  --accent-purple: #8b5cf6;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* 1. 네비게이션 바 */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: rgba(17, 24, 39, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 36px;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.nav-brand span {
+  color: var(--primary);
+}
+
+.nav-menu {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+
+.nav-menu a {
+  color: var(--text-sub);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-menu a:hover {
+  color: var(--primary);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid var(--accent-green);
+  font-size: 0.8rem;
+  color: var(--accent-green);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* 2. 이미지 로테이션 배너 (캐러셀) */
+.carousel-container {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  overflow: hidden;
+  background-color: #030712;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.carousel-slides {
+  display: flex;
+  width: 300%;
+  height: 100%;
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8%;
+  gap: 40px;
+}
+
+/* 슬라이드 테마별 그라디언트 배경 */
+.slide-vision {
+  background: radial-gradient(circle at 75% 50%, rgba(6, 182, 212, 0.12), #030712 70%);
+}
+.slide-rag {
+  background: radial-gradient(circle at 75% 50%, rgba(16, 185, 129, 0.12), #030712 70%);
+}
+.slide-agent {
+  background: radial-gradient(circle at 75% 50%, rgba(139, 92, 246, 0.12), #030712 70%);
+}
+
+.slide-content {
+  flex: 1.1;
+  max-width: 540px;
+  z-index: 2;
+}
+
+.slide-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.slide-vision .slide-tag { background: rgba(6, 182, 212, 0.2); color: var(--primary); }
+.slide-rag .slide-tag { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+.slide-agent .slide-tag { background: rgba(139, 92, 246, 0.2); color: var(--accent-purple); }
+
+.slide-content h2 {
+  font-size: 2.2rem;
+  margin-bottom: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.slide-content p {
+  font-size: 1.05rem;
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+
+/* 슬라이드 우측 벡터 일러스트레이션 아트워크 */
+.slide-visual {
+  flex: 0.9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  max-width: 440px;
+  z-index: 2;
+}
+
+.slide-visual svg {
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4b5563;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dot.active {
+  background: var(--primary);
+  width: 28px;
+  border-radius: 6px;
+}
+
+/* 3. 실행할 내용 카드 영역 */
+main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 50px auto;
+  padding: 0 24px;
+}
+
+.section-header {
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+.section-header h3 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.section-header p {
+  color: var(--text-sub);
+  font-size: 0.95rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.action-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  cursor: pointer;
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 24px -6px rgba(6, 182, 212, 0.25);
+}
+
+.card-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.card-desc {
+  color: var(--text-sub);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+
+.card-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.action-card:hover .card-btn {
+  background-color: var(--primary);
+  color: #0b0f19;
+  border-color: var(--primary);
+}
+
+/* 4. 실행 팝업 모달 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-window {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 680px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-sub);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.terminal-box {
+  background: #030712;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #38bdf8;
+  height: 220px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  background: var(--bg-card);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #0b0f19;
+}
+
+/* 5. 푸터 */
+footer {
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-color);
+  padding: 32px 24px;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.tech-pill {
+  font-size: 0.75rem;
+  background: var(--bg-card);
+  color: var(--text-sub);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+}
+
+.copyright {
+  color: var(--text-sub);
+  font-size: 0.85rem;
+}

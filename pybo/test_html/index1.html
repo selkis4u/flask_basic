@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SelfShop AI agent - 매장 자율 멀티모달 서비스 플랫폼</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#070b14',
+              surface: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+              violet: '#8b5cf6',
+              amber: '#f59e0b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap');
+    * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+    .scanner-line {
+      animation: scan 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes scan {
+      0%, 100% { transform: translateY(0); opacity: 0.2; }
+      50% { transform: translateY(180px); opacity: 0.9; }
+    }
+    .pulse-ring {
+      animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    @keyframes ping {
+      75%, 100% { transform: scale(1.6); opacity: 0; }
+    }
+    /* Carousel Track Smooth Slide Animation */
+    #carouselTrack {
+      transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    /* Custom Scrollbar for Terminals */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #070b14; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col selection:bg-brand-cyan selection:text-black">
+
+  <nav class="sticky top-0 z-40 bg-brand-surface/90 backdrop-blur-md border-b border-brand-border px-4 lg:px-12 py-3.5 flex items-center justify-between transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center font-black text-black text-xl shadow-lg shadow-cyan-500/20">
+        S
+      </div>
+      <div>
+        <span class="text-xl font-extrabold tracking-tight text-white">SelfShop <span class="text-brand-cyan font-bold">AI agent</span></span>
+        <span class="hidden md:inline-block ml-2 px-2 py-0.5 text-[11px] font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-700/60 rounded">Smart Retail AI</span>
+      </div>
+    </div>
+
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+      <a href="#carousel-section" class="hover:text-brand-cyan transition-colors">서비스 소개</a>
+      <a href="#pipeline" class="hover:text-brand-cyan transition-colors">실행 파이프라인</a>
+      <a href="#display-demo" class="hover:text-brand-cyan transition-colors">대형 디스플레이 뷰</a>
+      <a href="#tech" class="hover:text-brand-cyan transition-colors">시스템 아키텍처</a>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 bg-slate-900 border border-emerald-500/40 px-3 py-1.5 rounded-full text-xs font-medium text-emerald-400">
+        <span class="relative flex h-2 w-2">
+          <span class="pulse-ring absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="hidden sm:inline">Live Vision & Agent Active</span>
+      </div>
+      <button onclick="runEndToEndModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs md:text-sm rounded-lg shadow-md shadow-cyan-500/20 transition-all flex items-center gap-1.5 active:scale-95">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+        전체 시나리오 시뮬레이션
+      </button>
+    </div>
+  </nav>
+
+  <section id="carousel-section" class="relative w-full overflow-hidden bg-gradient-to-b from-[#0b1329] to-brand-dark border-b border-brand-border">
+    <!-- Carousel Track: Each child slide is 100% width of the container -->
+    <div id="carouselTrack" class="flex w-full">
+
+      <!-- Slide 1: CCTV Vision 인식 -->
+      <div class="w-full shrink-0 basis-full min-h-[440px] md:min-h-[480px] flex items-center justify-between px-6 md:px-16 lg:px-24 py-12">
+        <div class="max-w-xl z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 text-xs font-bold mb-4">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> STEP 01 · CCTV 객체 감지
+          </div>
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-4">
+            고객의 물건 파지를 <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">실시간 CCTV로 즉각 인식</span>
+          </h1>
+          <p class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
+            고객이 매장에 들어와 특정 상품을 손에 쥐는 순간, YOLOv11 고속 컴퓨터 비전 엔진이 해당 제품의 모델명과 고객 관심 상태를 0.2초 내에 구조화된 JSON 데이터로 파싱합니다.
+          </p>
+          <button onclick="openModal('vision')" class="px-5 py-2.5 bg-brand-surface hover:bg-slate-800 text-cyan-400 border border-cyan-500/50 rounded-xl text-sm font-semibold transition-all inline-flex items-center gap-2">
+            비전 검출 프로세스 열기 →
+          </button>
+        </div>
+        <div class="hidden lg:flex flex-1 justify-center items-center relative max-w-lg">
+          <!-- Slide 1 SVG Artwork: CCTV Scanner & Object BBoxes -->
+          <svg class="w-full h-auto drop-shadow-2xl" viewBox="0 0 460 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="460" height="300" rx="16" fill="#090d16" stroke="#1e293b" stroke-width="2"/>
+            <path d="M40 0V300M120 0V300M200 0V300M280 0V300M360 0V300M440 0V300" stroke="#1e293b" stroke-opacity="0.3"/>
+            <path d="M0 60H460M0 120H460M0 180H460M0 240H460" stroke="#1e293b" stroke-opacity="0.3"/>
+            <rect class="scanner-line" x="30" y="30" width="400" height="3" fill="url(#cyanGlow)"/>
+            <defs>
+              <linearGradient id="cyanGlow" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#06b6d4" stop-opacity="0"/>
+                <stop offset="50%" stop-color="#06b6d4" stop-opacity="1"/>
+                <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Viewfinder corners -->
+            <path d="M 40 50 L 40 40 L 50 40" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 410 40 L 420 40 L 420 50" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 40 250 L 40 260 L 50 260" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+            <path d="M 410 260 L 420 260 L 420 250" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+            <!-- Customer Bounding Box -->
+            <rect x="60" y="55" width="130" height="190" rx="8" fill="#06b6d4" fill-opacity="0.08" stroke="#06b6d4" stroke-width="2" stroke-dasharray="6 3"/>
+            <rect x="60" y="32" width="120" height="22" rx="4" fill="#06b6d4"/>
+            <text x="68" y="47" fill="#070b14" font-size="11" font-weight="800">Customer [Dwell: 14s]</text>
+            <!-- Handheld Item Detection -->
+            <circle cx="280" cy="150" r="55" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-width="2"/>
+            <circle cx="280" cy="150" r="38" stroke="#10b981" stroke-dasharray="4 2"/>
+            <rect x="220" y="75" width="180" height="24" rx="4" fill="#10b981"/>
+            <text x="228" y="91" fill="#070b14" font-size="11" font-weight="900">PICKUP: WH-1000XM5 [0.94]</text>
+            <path d="M260 140C260 125 300 125 300 140V160C300 170 290 175 280 175C270 175 260 170 260 160V140Z" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Slide 2: 멀티모달 RAG 지식 검색 -->
+      <div class="w-full shrink-0 basis-full min-h-[440px] md:min-h-[480px] flex items-center justify-between px-6 md:px-16 lg:px-24 py-12">
+        <div class="max-w-xl z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-xs font-bold mb-4">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> STEP 02 · 실시간 문서 & 이벤트 RAG
+          </div>
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-4">
+            제품 스펙·할인 쿠폰·<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">매장 당일 이벤트를 정밀 검색</span>
+          </h1>
+          <p class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
+            파악된 상품 정보를 토대로 Vector DB에 적재된 최신 제품 매뉴얼, 현재 진행 중인 20% 타임세일 이벤트 규정, 즉시 다운 가능한 QR 쿠폰 정책을 결함 없이 조회합니다.
+          </p>
+          <button onclick="openModal('rag')" class="px-5 py-2.5 bg-brand-surface hover:bg-slate-800 text-emerald-400 border border-emerald-500/50 rounded-xl text-sm font-semibold transition-all inline-flex items-center gap-2">
+            RAG 검색 파이프라인 열기 →
+          </button>
+        </div>
+        <div class="hidden lg:flex flex-1 justify-center items-center relative max-w-lg">
+          <!-- Slide 2 SVG Artwork: Vector DB & RAG Matching -->
+          <svg class="w-full h-auto drop-shadow-2xl" viewBox="0 0 460 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="460" height="300" rx="16" fill="#090d16" stroke="#1e293b" stroke-width="2"/>
+            <circle cx="120" cy="150" r="50" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-width="2"/>
+            <text x="85" y="155" fill="#34d399" font-size="12" font-weight="bold">Vector DB</text>
+            <path d="M170 150L240 150" stroke="#10b981" stroke-width="3" stroke-dasharray="5 3"/>
+            <rect x="240" y="55" width="180" height="80" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="252" y="78" fill="#38bdf8" font-size="11" font-weight="bold">📄 제품 상세 스펙 가이드</text>
+            <text x="252" y="98" fill="#94a3b8" font-size="9.5">ANC 노이즈캔슬링 30시간 배터리</text>
+            <text x="252" y="118" fill="#34d399" font-size="9.5" font-weight="bold">유사도: 0.982 (FAISS)</text>
+
+            <rect x="240" y="150" width="180" height="90" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="252" y="174" fill="#fbbf24" font-size="11" font-weight="bold">🏷️ 당일 타임세일 이벤트</text>
+            <text x="252" y="196" fill="#cbd5e1" font-size="9.5">현장 픽업 고객 전용 20% 즉시할인</text>
+            <text x="252" y="218" fill="#f59e0b" font-size="9.5" font-weight="bold">쿠폰코드: TIME-SALE-20</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Slide 3: 매장 대형 디스플레이 표출 -->
+      <div class="w-full shrink-0 basis-full min-h-[440px] md:min-h-[480px] flex items-center justify-between px-6 md:px-16 lg:px-24 py-12">
+        <div class="max-w-xl z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-400 text-xs font-bold mb-4">
+            <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span> STEP 03 · 매장 대형 디스플레이 제어
+          </div>
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-4">
+            매장 내 대형 스크린에 <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">실시간 맞춤 혜택 & QR 표출</span>
+          </h1>
+          <p class="text-slate-300 text-sm md:text-base leading-relaxed mb-6">
+            Agentic 도구(MCP)를 통해 고객 시선이 닿는 매장 전면 대형 디스플레이에 해당 상품의 핵심 스펙 안내문과 QR코드 모바일 다운로드 쿠폰을 즉각 띄워 구매를 유도합니다.
+          </p>
+          <button onclick="scrollToDisplaySection()" class="px-5 py-2.5 bg-brand-surface hover:bg-slate-800 text-purple-400 border border-purple-500/50 rounded-xl text-sm font-semibold transition-all inline-flex items-center gap-2">
+            대형 디스플레이 라이브 뷰 보기 ↓
+          </button>
+        </div>
+        <div class="hidden lg:flex flex-1 justify-center items-center relative max-w-lg">
+          <!-- Slide 3 SVG Artwork: Display Screen & QR Code -->
+          <svg class="w-full h-auto drop-shadow-2xl" viewBox="0 0 460 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="460" height="300" rx="16" fill="#090d16" stroke="#1e293b" stroke-width="2"/>
+            <rect x="50" y="40" width="360" height="200" rx="10" fill="#020617" stroke="#8b5cf6" stroke-width="2.5"/>
+            <rect x="180" y="240" width="100" height="15" fill="#1e293b"/>
+            <rect x="150" y="255" width="160" height="8" rx="4" fill="#334155"/>
+            <rect x="65" y="55" width="330" height="40" rx="6" fill="#8b5cf6" fill-opacity="0.15"/>
+            <text x="80" y="79" fill="#c084fc" font-size="12" font-weight="900">✨ [WH-1000XM5] 고객 맞춤 특별 혜택 안내</text>
+            <rect x="65" y="105" width="200" height="120" rx="6" fill="#1e293b"/>
+            <text x="75" y="125" fill="#f8fafc" font-size="10" font-weight="bold">타임세일 20% 할인 이벤트 진행 중</text>
+            <text x="75" y="145" fill="#94a3b8" font-size="9">정가 449,000원 → 혜택가 359,200원</text>
+            <rect x="280" y="105" width="115" height="120" rx="6" fill="#ffffff"/>
+            <rect x="295" y="120" width="85" height="85" fill="#020617"/>
+            <rect x="305" y="130" width="20" height="20" fill="#ffffff"/>
+            <rect x="350" y="130" width="20" height="20" fill="#ffffff"/>
+            <rect x="305" y="175" width="20" height="20" fill="#ffffff"/>
+            <text x="290" y="220" fill="#475569" font-size="8.5" font-weight="bold">스마트폰 스캔 쿠폰받기</text>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Carousel Navigation Arrows -->
+    <button onclick="prevSlide()" aria-label="Previous Slide" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white flex items-center justify-center transition-all z-20 hover:scale-105 active:scale-95">
+      &#10094;
+    </button>
+    <button onclick="nextSlide()" aria-label="Next Slide" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-white flex items-center justify-center transition-all z-20 hover:scale-105 active:scale-95">
+      &#10095;
+    </button>
+
+    <!-- Carousel Indicators (Dots) -->
+    <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
+      <button onclick="changeSlide(0)" class="carousel-dot w-7 h-3 rounded-full bg-cyan-400 transition-all duration-300" aria-label="Slide 1"></button>
+      <button onclick="changeSlide(1)" class="carousel-dot w-3 h-3 rounded-full bg-slate-600 transition-all duration-300" aria-label="Slide 2"></button>
+      <button onclick="changeSlide(2)" class="carousel-dot w-3 h-3 rounded-full bg-slate-600 transition-all duration-300" aria-label="Slide 3"></button>
+    </div>
+  </section>
+
+  <main id="pipeline" class="max-w-7xl w-full mx-auto px-6 lg:px-12 py-16 flex-1">
+
+    <div class="text-center max-w-3xl mx-auto mb-14">
+      <h2 class="text-xs md:text-sm font-bold tracking-widest uppercase text-brand-cyan mb-2">Autonomous Workflow Pipeline</h2>
+      <h3 class="text-2xl md:text-3xl font-extrabold text-white">SelfShop 핵심 3단계 서비스 파이프라인</h3>
+      <p class="text-slate-400 mt-3 text-sm md:text-base leading-relaxed">
+        고객이 물건을 집는 순간부터 매장 대형 디스플레이에 안내가 표출되기까지의 전 과정을 각각 직접 실행하고 검증해보실 수 있습니다.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Action Card 1 -->
+      <div onclick="openModal('vision')" class="group relative bg-brand-surface border border-brand-border hover:border-brand-cyan rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-cyan-500/10 cursor-pointer flex flex-col justify-between">
+        <div class="absolute top-5 right-5 text-xs font-bold text-cyan-400/80 bg-cyan-950/60 px-2.5 py-1 rounded-md border border-cyan-800/40">
+          STAGE 01
+        </div>
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-cyan-950 flex items-center justify-center text-brand-cyan mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          </div>
+          <span class="text-xs font-semibold text-brand-cyan uppercase tracking-wider">Vision Perception</span>
+          <h4 class="text-xl font-bold text-white mt-1 mb-3">CCTV 비전 인식 및 물건 감지</h4>
+          <p class="text-slate-400 text-sm leading-relaxed mb-6">
+            매장 천장 CCTV 카메라가 고객의 진입, 특정 구역 체류, 물건을 손으로 들어 올리는 제스처를 포착하여 고유 객체 ID와 함께 구조화합니다.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-brand-border flex items-center justify-between text-xs font-bold text-cyan-400 group-hover:text-cyan-300">
+          <span>비전 인식 시뮬레이터 실행</span>
+          <span class="transition-transform group-hover:translate-x-1">→</span>
+        </div>
+      </div>
+
+      <!-- Action Card 2 -->
+      <div onclick="openModal('rag')" class="group relative bg-brand-surface border border-brand-border hover:border-brand-emerald rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-emerald-500/10 cursor-pointer flex flex-col justify-between">
+        <div class="absolute top-5 right-5 text-xs font-bold text-emerald-400/80 bg-emerald-950/60 px-2.5 py-1 rounded-md border border-emerald-800/40">
+          STAGE 02
+        </div>
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-950 flex items-center justify-center text-brand-emerald mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          </div>
+          <span class="text-xs font-semibold text-brand-emerald uppercase tracking-wider">Multi-Modal RAG</span>
+          <h4 class="text-xl font-bold text-white mt-1 mb-3">문서 RAG 스펙·쿠폰·이벤트 검색</h4>
+          <p class="text-slate-400 text-sm leading-relaxed mb-6">
+            감지된 제품 ID에 대응하는 매뉴얼, 현재 시간대에 제공 가능한 할인 쿠폰, 10월 한정 특별 사은품 증정 정책을 벡터 DB에서 초고속으로 인출합니다.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-brand-border flex items-center justify-between text-xs font-bold text-emerald-400 group-hover:text-emerald-300">
+          <span>지식 검색 파이프라인 실행</span>
+          <span class="transition-transform group-hover:translate-x-1">→</span>
+        </div>
+      </div>
+
+      <!-- Action Card 3 -->
+      <div onclick="openModal('display')" class="group relative bg-brand-surface border border-brand-border hover:border-brand-violet rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-purple-500/10 cursor-pointer flex flex-col justify-between">
+        <div class="absolute top-5 right-5 text-xs font-bold text-purple-400/80 bg-purple-950/60 px-2.5 py-1 rounded-md border border-purple-800/40">
+          STAGE 03
+        </div>
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-purple-950 flex items-center justify-center text-brand-violet mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <span class="text-xs font-semibold text-brand-violet uppercase tracking-wider">Agentic Display Action</span>
+          <h4 class="text-xl font-bold text-white mt-1 mb-3">매장 대형 디스플레이 표출</h4>
+          <p class="text-slate-400 text-sm leading-relaxed mb-6">
+            Agent의 자율 루프가 매장 내 초대형 디지털 사이니지 API(MCP)를 호출하여 고객에게 특화된 안내 그래픽, 할인 혜택, 모바일 QR을 송출합니다.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-brand-border flex items-center justify-between text-xs font-bold text-purple-400 group-hover:text-purple-300">
+          <span>디스플레이 연동 루프 실행</span>
+          <span class="transition-transform group-hover:translate-x-1">→</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- E2E Banner Simulation Trigger -->
+    <div class="mt-12 bg-gradient-to-r from-brand-surface via-slate-900 to-brand-surface border border-cyan-500/30 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl flex-shrink-0">
+          ⚡
+        </div>
+        <div>
+          <h4 class="text-lg font-bold text-white">물건 파지부터 대형 스크린 팝업까지 한번에 체험하기</h4>
+          <p class="text-slate-400 text-sm mt-1">CCTV 인식 → 문서 RAG → 매장 디스플레이 출력 전 과정을 3초 만에 시뮬레이션합니다.</p>
+        </div>
+      </div>
+      <button onclick="runEndToEndModal()" class="w-full md:w-auto px-6 py-3 bg-brand-cyan hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-lg shadow-cyan-500/25 active:scale-95 whitespace-nowrap">
+        원클릭 E2E 시나리오 실행
+      </button>
+    </div>
+
+  </main>
+
+  <section id="display-demo" class="w-full bg-[#050811] py-16 border-t border-brand-border">
+    <div class="max-w-6xl mx-auto px-6">
+
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-400 text-xs font-bold mb-2">
+            <span class="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span> LIVE SCREEN MIRRORING
+          </div>
+          <h3 class="text-2xl md:text-3xl font-extrabold text-white">매장 대형 디스플레이 (In-Store Large Display)</h3>
+          <p class="text-slate-400 text-sm mt-1">CCTV 인식 후 에이전트가 고객에게 실시간으로 전송하여 스크린에 띄운 화면입니다.</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400 font-mono">Screen ID: DS-ZONE-A1 (85 inch 4K)</span>
+          <button onclick="triggerScreenUpdate('sample2')" class="px-3 py-1.5 bg-brand-surface hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-200 border border-slate-700 transition-colors">
+            다른 상품 감지 시뮬레이션
+          </button>
+        </div>
+      </div>
+
+      <!-- Large Display Frame (Bezel Mockup) -->
+      <div class="relative bg-slate-900 p-4 md:p-6 rounded-3xl border-4 border-slate-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)]">
+        <!-- Screen Glass Panel -->
+        <div id="largeDisplayScreen" class="bg-gradient-to-br from-slate-950 via-[#0d1627] to-slate-950 rounded-2xl p-6 md:p-10 border border-slate-700/60 overflow-hidden relative transition-all duration-500">
+
+          <!-- Top Screen Bar -->
+          <div class="flex items-center justify-between border-b border-slate-800 pb-5 mb-8">
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 font-extrabold text-xs tracking-wider border border-cyan-500/40">
+                SelfShop SMART CONCIERGE
+              </span>
+              <span class="text-xs text-slate-400 font-medium">Zone A: 음향 & 모바일 프리미엄 쇼룸</span>
+            </div>
+            <div class="text-xs font-mono text-slate-400 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span id="screenLiveClock">12:05:16 PM</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Display Body Content -->
+          <div id="screenDynamicContent" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+
+            <!-- Left: Personalized Product Greeting & Specs -->
+            <div class="lg:col-span-7 space-y-5">
+              <div class="inline-block bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 px-3.5 py-1.5 rounded-xl text-xs font-bold">
+                🎯 고객님께서 손에 쥐신 상품 맞춤 혜택
+              </div>
+              <h2 id="dispProductName" class="text-2xl md:text-4xl font-black text-white tracking-tight">
+                Sony WH-1000XM5 무선 노이즈캔슬링
+              </h2>
+              <p id="dispProductSub" class="text-slate-300 text-sm md:text-base leading-relaxed">
+                업계 최고 수준의 8개 마이크 노이즈 캔슬링 프로세서 탑재 · 30시간 연속 재생 고음질 LDAC 지원
+              </p>
+
+              <!-- Specs Pills -->
+              <div id="dispSpecsPills" class="flex flex-wrap gap-2 pt-2">
+                <span class="px-3 py-1 rounded-lg bg-slate-800/80 text-xs font-semibold text-slate-200 border border-slate-700">무게 250g 초경량</span>
+                <span class="px-3 py-1 rounded-lg bg-slate-800/80 text-xs font-semibold text-slate-200 border border-slate-700">고속충전 (3분 충전 3시간)</span>
+                <span class="px-3 py-1 rounded-lg bg-slate-800/80 text-xs font-semibold text-slate-200 border border-slate-700">멀티포인트 2대 동시연결</span>
+              </div>
+
+              <!-- Price & Discount Announcement -->
+              <div class="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/60 to-slate-900 border border-cyan-500/40 flex items-center justify-between">
+                <div>
+                  <span class="text-xs text-slate-400 font-medium">당일 매장 픽업 특별가</span>
+                  <div class="flex items-baseline gap-2 mt-0.5">
+                    <span id="dispSalePrice" class="text-2xl md:text-3xl font-black text-cyan-400">359,200원</span>
+                    <span id="dispOriginalPrice" class="text-sm text-slate-500 line-through">449,000원</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-xs font-black">
+                    20% 특별 타임세일
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Event & QR Code Mobile Download -->
+            <div class="lg:col-span-5 bg-slate-900/90 border border-slate-700 rounded-2xl p-6 flex flex-col items-center text-center shadow-lg">
+              <span class="text-xs font-bold text-amber-400 tracking-wider uppercase mb-1">Store Event & Voucher</span>
+              <h4 class="text-lg font-bold text-white mb-4">스마트폰으로 즉시 쿠폰 받기</h4>
+
+              <!-- Realistic QR Code Representation -->
+              <div class="p-3 bg-white rounded-xl shadow-md mb-4 relative group">
+                <svg class="w-36 h-36" viewBox="0 0 100 100" fill="#020617">
+                  <rect x="0" y="0" width="30" height="30" fill="#020617"/>
+                  <rect x="5" y="5" width="20" height="20" fill="#ffffff"/>
+                  <rect x="9" y="9" width="12" height="12" fill="#020617"/>
+
+                  <rect x="70" y="0" width="30" height="30" fill="#020617"/>
+                  <rect x="75" y="5" width="20" height="20" fill="#ffffff"/>
+                  <rect x="79" y="9" width="12" height="12" fill="#020617"/>
+
+                  <rect x="0" y="70" width="30" height="30" fill="#020617"/>
+                  <rect x="5" y="75" width="20" height="20" fill="#ffffff"/>
+                  <rect x="9" y="79" width="12" height="12" fill="#020617"/>
+
+                  <rect x="40" y="10" width="6" height="6"/>
+                  <rect x="50" y="15" width="8" height="6"/>
+                  <rect x="40" y="35" width="12" height="6"/>
+                  <rect x="60" y="45" width="6" height="14"/>
+                  <rect x="25" y="45" width="10" height="10"/>
+                  <rect x="45" y="65" width="15" height="8"/>
+                  <rect x="70" y="70" width="10" height="10"/>
+                  <rect x="85" y="85" width="8" height="8"/>
+                  <rect x="45" y="85" width="8" height="8"/>
+                </svg>
+              </div>
+
+              <div class="text-xs text-slate-300 font-medium space-y-1 mb-4">
+                <p class="font-bold text-amber-300">🎁 10월 한정 정품 헤드폰 거치대 사은품 교환권 포함</p>
+                <p class="text-slate-400">카메라를 켜서 QR을 스캔하시면 결제 시 자동 적용됩니다.</p>
+              </div>
+
+              <div class="w-full flex items-center justify-between text-[11px] text-slate-400 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700">
+                <span>점원 문의가 필요하신가요?</span>
+                <span class="text-brand-cyan font-bold cursor-pointer hover:underline" onclick="simulateCallStaff()">점원 호출하기 🔔</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Screen Footer Status -->
+          <div class="mt-8 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+            <span>Powered by SelfShop Vision-RAG Autonomous Controller v2.6</span>
+            <span class="font-mono text-cyan-400">Status: Agent Triggered Display Signal (200 OK)</span>
+          </div>
+
+        </div>
+        <div class="w-32 h-3 bg-slate-800 mx-auto rounded-b-lg"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="tech" class="max-w-7xl mx-auto px-6 lg:px-12 py-16 border-t border-brand-border">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h3 class="text-2xl font-bold text-white">시스템 구현 기술 스택</h3>
+      <p class="text-slate-400 text-sm mt-2">Vision 인식부터 RAG 지식 검색, 대형 스크린 제어까지 상호 연결된 모듈 구성</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+      <div class="bg-brand-surface border border-brand-border p-5 rounded-2xl">
+        <div class="text-cyan-400 font-extrabold text-base mb-1">YOLOv11</div>
+        <p class="text-xs text-slate-400">실시간 매장 영상 객체 검출 및 고객 동선/파지 감지</p>
+      </div>
+      <div class="bg-brand-surface border border-brand-border p-5 rounded-2xl">
+        <div class="text-emerald-400 font-extrabold text-base mb-1">Vector DB & RAG</div>
+        <p class="text-xs text-slate-400">카탈로그 매뉴얼, 타임세일 이벤트, 쿠폰 규정 검색</p>
+      </div>
+      <div class="bg-brand-surface border border-brand-border p-5 rounded-2xl">
+        <div class="text-purple-400 font-extrabold text-base mb-1">LangGraph Agent</div>
+        <p class="text-xs text-slate-400">인식-검색-검증-실행 자율 루프 조율 엔진</p>
+      </div>
+      <div class="bg-brand-surface border border-brand-border p-5 rounded-2xl">
+        <div class="text-amber-400 font-extrabold text-base mb-1">MCP Tool Controller</div>
+        <p class="text-xs text-slate-400">매장 대형 스크린 및 키오스크 하드웨어 제어 규격</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="simulationModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-brand-surface border border-brand-border rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl transition-all">
+
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-brand-border flex items-center justify-between bg-slate-900/60">
+        <div class="flex items-center gap-2">
+          <span id="modalStepIcon" class="w-3 h-3 rounded-full bg-cyan-400"></span>
+          <h4 id="modalHeading" class="text-lg font-bold text-white">모듈 시뮬레이터</h4>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-xl p-1 font-mono">&times;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-4">
+        <p id="modalDescription" class="text-slate-300 text-sm">실행 프로세스를 준비 중입니다.</p>
+
+        <!-- Live Terminal Box -->
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-cyan-300 h-64 overflow-y-auto space-y-1.5" id="terminalConsole">
+          <div class="text-slate-500">// SelfShop AI agent Console Ready.</div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="modalProgressBar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-full w-0 transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 bg-slate-900/80 border-t border-brand-border flex items-center justify-between">
+        <span id="modalStatusText" class="text-xs text-slate-400">대기 중...</span>
+        <div class="flex gap-2.5">
+          <button onclick="closeModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors">
+            닫기
+          </button>
+          <button id="modalActionBtn" onclick="runCurrentAction()" class="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md">
+            지금 실행하기
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notification Toast (replaces alert) -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-cyan-500 text-white px-5 py-3.5 rounded-xl shadow-2xl text-xs sm:text-sm font-semibold flex items-center gap-3 translate-y-24 opacity-0 transition-all duration-300">
+    <span class="text-cyan-400 text-lg">🔔</span>
+    <span id="toastMessage">알림 내용</span>
+  </div>
+
+  <footer class="bg-brand-surface border-t border-brand-border py-8 px-6 text-center text-slate-400 text-xs">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+        <span class="font-bold text-slate-200">SelfShop AI agent Platform</span>
+        <span>— Multimodal Autonomous Retail AI Project</span>
+      </div>
+      <div class="text-slate-400">
+        © 2026 SelfShop AI agent. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* 1. Bullet-proof Carousel Controller */
+    let currentSlide = 0;
+    const totalSlides = 3;
+    const track = document.getElementById('carouselTrack');
+    const dots = document.querySelectorAll('.carousel-dot');
+    let slideInterval = null;
+
+    function applySlideTransform() {
+      if (!track) return;
+      // Because each child slide is 100% (basis-full), we translate by index * 100%
+      track.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+      dots.forEach((dot, idx) => {
+        if (idx === currentSlide) {
+          dot.classList.remove('bg-slate-600', 'w-3');
+          dot.classList.add('bg-cyan-400', 'w-7');
+        } else {
+          dot.classList.remove('bg-cyan-400', 'w-7');
+          dot.classList.add('bg-slate-600', 'w-3');
+        }
+      });
+    }
+
+    function changeSlide(index) {
+      currentSlide = (index + totalSlides) % totalSlides;
+      applySlideTransform();
+      resetSlideTimer();
+    }
+
+    function nextSlide() {
+      changeSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      changeSlide(currentSlide - 1);
+    }
+
+    function startSlideTimer() {
+      if (slideInterval) clearInterval(slideInterval);
+      slideInterval = setInterval(() => {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        applySlideTransform();
+      }, 4500);
+    }
+
+    function resetSlideTimer() {
+      if (slideInterval) clearInterval(slideInterval);
+      startSlideTimer();
+    }
+
+    // Touch swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const carouselSection = document.getElementById('carousel-section');
+    if (carouselSection) {
+      carouselSection.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+      carouselSection.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 50) nextSlide();
+        else if (touchEndX - touchStartX > 50) prevSlide();
+      }, { passive: true });
+    }
+
+    /* 2. Clock on Screen Mockup */
+    function updateClock() {
+      const clockEl = document.getElementById('screenLiveClock');
+      if (clockEl) {
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+    }
+
+    function scrollToDisplaySection() {
+      const target = document.getElementById('display-demo');
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* 3. Modal & Simulator Logic */
+    let currentMode = 'vision';
+    const modal = document.getElementById('simulationModal');
+    const modalHeading = document.getElementById('modalHeading');
+    const modalDescription = document.getElementById('modalDescription');
+    const terminal = document.getElementById('terminalConsole');
+    const progressBar = document.getElementById('modalProgressBar');
+    const statusText = document.getElementById('modalStatusText');
+    const actionBtn = document.getElementById('modalActionBtn');
+    const stepIcon = document.getElementById('modalStepIcon');
+
+    function logTerminal(text, colorClass = "text-cyan-300") {
+      if (!terminal) return;
+      const line = document.createElement('div');
+      line.className = colorClass;
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function openModal(mode) {
+      currentMode = mode;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      terminal.innerHTML = '<div class="text-slate-500">// 파이프라인 대기 중. 아래 버튼을 눌러 테스트를 시작하세요.</div>';
+      progressBar.style.width = '0%';
+      actionBtn.disabled = false;
+      actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      if (mode === 'vision') {
+        modalHeading.textContent = "Stage 01: CCTV 실시간 물건 감지 시뮬레이터";
+        modalDescription.textContent = "매장 카메라 스트림을 입력받아 고객 체류 및 물건 집어 올리기(Pick-up) 동작을 분석합니다.";
+        stepIcon.className = "w-3 h-3 rounded-full bg-cyan-400";
+        statusText.textContent = "YOLOv11s Perception Module Ready";
+      } else if (mode === 'rag') {
+        modalHeading.textContent = "Stage 02: 멀티모달 RAG 지식 검색 시뮬레이터";
+        modalDescription.textContent = "인식된 물품에 맞춤형 할인 쿠폰, 10월 당일 이벤트, 상세 스펙 문서를 Vector DB에서 검색합니다.";
+        stepIcon.className = "w-3 h-3 rounded-full bg-emerald-400";
+        statusText.textContent = "Vector DB (Chroma/FAISS) Ready";
+      } else if (mode === 'display') {
+        modalHeading.textContent = "Stage 03: 매장 대형 디스플레이 표출 제어";
+        modalDescription.textContent = "Agent가 MCP 도구를 통해 매장 대형 스크린으로 고객 맞춤 그래픽 및 QR 쿠폰을 송출합니다.";
+        stepIcon.className = "w-3 h-3 rounded-full bg-purple-400";
+        statusText.textContent = "Digital Signage Controller Ready";
+      }
+    }
+
+    function runEndToEndModal() {
+      currentMode = 'e2e';
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      terminal.innerHTML = '<div class="text-slate-500">// 전체 시나리오: 고객 진입 -> 물건 파지 감지 -> RAG 검색 -> 대형 디스플레이 송출</div>';
+      modalHeading.textContent = "End-to-End 전체 시나리오 원클릭 시뮬레이션";
+      modalDescription.textContent = "고객이 물건을 집는 순간부터 대형 스크린에 안내가 뜨는 전 과정을 자동으로 순차 실행합니다.";
+      stepIcon.className = "w-3 h-3 rounded-full bg-gradient-to-r from-cyan-400 to-purple-400";
+      progressBar.style.width = '0%';
+      statusText.textContent = "통합 에이전트 루프 준비 완료";
+      actionBtn.disabled = false;
+      actionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      runCurrentAction();
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function runCurrentAction() {
+      actionBtn.disabled = true;
+      actionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      if (currentMode === 'vision') runVisionSimulation();
+      else if (currentMode === 'rag') runRagSimulation();
+      else if (currentMode === 'display') runDisplaySimulation();
+      else if (currentMode === 'e2e') runFullE2ESimulation();
+    }
+
+    function runVisionSimulation() {
+      statusText.textContent = "비전 분석 진행 중...";
+      progressBar.style.width = '30%';
+      logTerminal("CCTV RTSP 영상 피드 수신 중 (Zone A-1, 1080p 30fps)...");
+
+      setTimeout(() => {
+        progressBar.style.width = '65%';
+        logTerminal("YOLOv11 추론: 고객 Bounding Box [Person: 0.96] 추적", "text-cyan-400");
+        logTerminal("고객 체류 시간(Dwell Time): 12.4초 감지 -> '관심 고객' 분류", "text-cyan-300");
+      }, 700);
+
+      setTimeout(() => {
+        progressBar.style.width = '100%';
+        logTerminal("✨ [ACTION DETECTED] 고객 물건 파지(Pick-up) 동작 포착!", "text-emerald-400 font-bold");
+        logTerminal("물건 클래스 식별: 'Sony WH-1000XM5 헤드폰' (신뢰도: 97.8%)", "text-emerald-300");
+        logTerminal("구조화된 이벤트 메시지가 LangGraph Agent에 전달되었습니다.", "text-purple-300");
+        statusText.textContent = "비전 분석 완료 (Success)";
+      }, 1500);
+    }
+
+    function runRagSimulation() {
+      statusText.textContent = "RAG 지식 검색 진행 중...";
+      progressBar.style.width = '25%';
+      logTerminal("임베딩 쿼리 생성: 'WH-1000XM5 스펙, 10월 프로모션, 즉시할인 쿠폰'...");
+
+      setTimeout(() => {
+        progressBar.style.width = '60%';
+        logTerminal("Vector DB 검색 수행 (Top-k=3 문서 청크 인출)...", "text-slate-300");
+        logTerminal("✓ [문서 1] 2026 오디오 카탈로그: ANC, 배터리 30시간, 멀티포인트", "text-emerald-300");
+        logTerminal("✓ [문서 2] 10월 타임세일 규정: 오디오 전품목 20% 즉시할인 적용 가능", "text-amber-300 font-bold");
+        logTerminal("✓ [문서 3] 사은품 이벤트: 정품 헤드폰 거치대 증정 쿠폰 발급 규칙", "text-emerald-400");
+      }, 800);
+
+      setTimeout(() => {
+        progressBar.style.width = '100%';
+        logTerminal("Hallucination 검증 통과 (Grounding Score: 0.99)", "text-cyan-400");
+        logTerminal("Agentic Tool 호출 매개변수 준비 완료.", "text-purple-300");
+        statusText.textContent = "RAG 검색 완료 (Success)";
+      }, 1600);
+    }
+
+    function runDisplaySimulation() {
+      statusText.textContent = "디스플레이 표출 신호 전송 중...";
+      progressBar.style.width = '40%';
+      logTerminal("MCP 도구 호출: call_tool('digital_signage_controller', screen_id='DS-ZONE-A1')...");
+
+      setTimeout(() => {
+        progressBar.style.width = '80%';
+        logTerminal("페이로드 구성: 상품명, 스펙 요약, 20% 할인가(359,200원), QR코드 이미지", "text-purple-300");
+        logTerminal("대형 디스플레이 웹소켓 연결 성공 -> UI 렌더링 명령 하달", "text-emerald-400");
+      }, 700);
+
+      setTimeout(() => {
+        progressBar.style.width = '100%';
+        logTerminal("✨ [SUCCESS] 매장 전면 85인치 대형 디스플레이에 화면 표출 완료!", "text-cyan-300 font-bold");
+        statusText.textContent = "표출 완료 (Success)";
+      }, 1400);
+    }
+
+    function runFullE2ESimulation() {
+      statusText.textContent = "1단계: CCTV 비전 감지...";
+      progressBar.style.width = '20%';
+      logTerminal("=== [E2E 파이프라인 시작] ===", "text-white font-bold");
+      logTerminal("1. 매장 CCTV: 고객 진입 및 헤드폰 매대 체류 감지");
+
+      setTimeout(() => {
+        progressBar.style.width = '45%';
+        logTerminal("2. YOLOv11: 고객이 [WH-1000XM5] 상품을 손에 쥐었습니다!", "text-cyan-400 font-bold");
+        statusText.textContent = "2단계: 문서 RAG 검색...";
+      }, 900);
+
+      setTimeout(() => {
+        progressBar.style.width = '75%';
+        logTerminal("3. Vector RAG: 당일 타임세일 20% 할인 쿠폰 & 헤드폰 거치대 증정 이벤트 매칭", "text-emerald-400 font-bold");
+        statusText.textContent = "3단계: 대형 스크린 송출...";
+      }, 1800);
+
+      setTimeout(() => {
+        progressBar.style.width = '100%';
+        logTerminal("4. MCP 도구: 매장 대형 디스플레이(DS-ZONE-A1)로 화면 갱신 완료!", "text-purple-400 font-bold");
+        statusText.textContent = "전체 시나리오 성공 완료!";
+
+        updateDisplayScreenContent({
+          title: "Sony WH-1000XM5 무선 노이즈캔슬링",
+          desc: "업계 최고 수준의 8개 마이크 노이즈 캔슬링 프로세서 탑재 · 30시간 연속 재생 고음질 LDAC 지원",
+          salePrice: "359,200원",
+          originalPrice: "449,000원",
+          discount: "20% 특별 타임세일"
+        });
+
+        setTimeout(() => {
+          closeModal();
+          scrollToDisplaySection();
+        }, 1200);
+      }, 2700);
+    }
+
+    /* 4. Large Display Screen Dynamic Update */
+    function updateDisplayScreenContent(data) {
+      const screen = document.getElementById('largeDisplayScreen');
+      if (!screen) return;
+      screen.classList.add('opacity-40');
+
+      setTimeout(() => {
+        document.getElementById('dispProductName').textContent = data.title;
+        document.getElementById('dispProductSub').textContent = data.desc;
+        document.getElementById('dispSalePrice').textContent = data.salePrice;
+        document.getElementById('dispOriginalPrice').textContent = data.originalPrice;
+        screen.classList.remove('opacity-40');
+      }, 250);
+    }
+
+    function triggerScreenUpdate(type) {
+      if (type === 'sample2') {
+        updateDisplayScreenContent({
+          title: "Apple Watch Ultra 2 (GPS + Cellular)",
+          desc: "49mm 티타늄 케이스 · 3000니트 밝기의 Retina 디스플레이 및 다이빙 수심 게이지 지원",
+          salePrice: "998,000원",
+          originalPrice: "1,149,000원",
+          discount: "15% 신규런칭 할인"
+        });
+        showToast("Apple Watch Ultra 2 감지 시뮬레이션이 스크린에 반영되었습니다.");
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = message;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3500);
+    }
+
+    function simulateCallStaff() {
+      showToast("해당 구역(Zone A) 매장 점원에게 모바일 호출 신호가 전송되었습니다.");
+    }
+
+    /* Initialize upon window load */
+    window.addEventListener('load', () => {
+      startSlideTimer();
+      setInterval(updateClock, 1000);
+      updateClock();
+    });
+  </script>
+</body>
+</html>
