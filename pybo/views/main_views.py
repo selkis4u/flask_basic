@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from pybo import db
 from pybo.models import Question
 
 bp = Blueprint('main', __name__, url_prefix='/')
@@ -9,9 +10,12 @@ def index():
   question_list = Question.query.order_by(Question.create_date.desc())
   return render_template('question/question_list.html', question_list=question_list)
 
-# @bp.route('/hello')
-# def hello_pybo():
-#     return 'Physical AI 서비스 개발 테스트 페이지입니다.!!'
+@bp.route('/detail/<int:question_id>/')
+def detail(question_id):
+  question = Question.query.get_or_404(question_id)
+  return render_template('question/question_detail.html', question=question)
+
+
 
 #@bp.route('/list')
 # def book_list():
@@ -20,4 +24,3 @@ def index():
 #
 #   # 템플릿으로 데이터 전달
 #   return render_template('/book_list.html', books=books)
-
