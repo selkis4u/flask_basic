@@ -1,6 +1,5 @@
 from pybo import db
-from sqlalchemy import Sequence
-from flask_sqlalchemy import SQLAlchemy
+
 
 class Question(db.Model):
     __tablename__ = 'question'
