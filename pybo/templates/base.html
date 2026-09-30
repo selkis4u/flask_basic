@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}SelfShop AI agent{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
   <!-- Bootstrap 5 CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-  <!-- Pretendard Font -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <!-- pybo CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>{% block title %}SelfShop AI agent{% endblock %}</title>
 
   <style>
     * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -26,40 +26,17 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
-
-  <!-- 공통 네비게이션 바 -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-2 shadow-sm">
-    <div class="container-fluid px-lg-5">
-      <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none fw-bold text-dark m-0" href="{{ url_for('main.index') }}">
-        <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px;">
-          S
-        </div>
-        <span class="fs-5 tracking-tight">SelfShop <span class="text-primary fw-bold">AI agent</span></span>
-        <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1 d-none d-md-inline-block">Smart Retail AI</span>
-      </a>
-
-      <div class="collapse navbar-collapse justify-content-center d-none d-lg-flex" id="navbarNav">
-        <ul class="navbar-nav gap-4 fw-semibold text-secondary">
-          <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#carousel-section">서비스 소개</a></li>
-          <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#pipeline">실행 시뮬레이션</a></li>
-          <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#display-demo">대형 디스플레이 뷰</a></li>
-          <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('question._list') }}">FAQ 게시판</a></li>
-        </ul>
-      </div>
-
-      <div class="d-flex align-items-center gap-2">
-        <div class="d-flex align-items-center gap-2 bg-light border border-success-subtle px-3 py-1 rounded-pill text-success fw-medium small">
-          <span class="pulse-dot"></span>
-          <span class="d-none d-sm-inline">Live Vision & Agent Active</span>
-        </div>
-      </div>
-    </div>
-  </nav>
+{% include "navbar.html" %}
 
   <!-- 본문 영역: 자식 템플릿들이 채우는 곳 -->
   <main class="flex-grow-1">
     {% block content %}
     {% endblock %}
+
+  <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  {% block script %}
+  {% endblock %}
   </main>
 
   <!-- 공통 풋터 -->
@@ -75,9 +52,5 @@
       </div>
     </div>
   </footer>
-
-  <!-- Bootstrap 5 JS -->
-  <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
-  {% block extra_script %}{% endblock %}
 </body>
 </html>
