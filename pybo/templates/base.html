@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
   <!-- pybo CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <title>{% block title %}SelfShop AI agent{% endblock %}</title>
 
   <style>
     * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -23,8 +22,8 @@
       100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
     }
   </style>
-  {% block extra_head %}{% endblock %}
 </head>
+
 <body class="d-flex flex-column min-vh-100">
 {% include "navbar.html" %}
 
@@ -33,10 +32,6 @@
     {% block content %}
     {% endblock %}
 
-  <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  {% block script %}
-  {% endblock %}
   </main>
 
   <!-- 공통 풋터 -->
@@ -52,5 +47,9 @@
       </div>
     </div>
   </footer>
+  <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  {% block script %}
+  {% endblock %}
 </body>
 </html>
