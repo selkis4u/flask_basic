@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ 게시판 - SelfShop AI agent{% endblock %}
+{% block content %}
+<div class="container my-3">
+    <!-- 질문 헤더 및 본문 -->
+    <h2 class="border-bottom py-2">{{ question.subject }}</h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <!-- 줄바꿈 유지를 위한 pre-line 스타일 적용 -->
+            <div class="card-text" style="white-space: pre-line;">
+                {{ question.content }}
+            </div>
+            <div class="d-flex justify-content-end">
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">{{ question.user.username }}</div>
+                    <div>{{ question.create_date }}</div>
+                </div>
+            </div>
+        </div>
+        {% if g.user == question.user %}
+            <div class = "my-3">
+                <a href = "{{ url_for('question.modify', question_id=question.id) }}"
+                    class = "btn btn-sm btn-outline-secondary">수정</a>
+                <a href = "#" class="delete btn btn-sm btn-outline-secondary"
+                   data-uri="{{ url_for('question.delete', question_id=question.id) }}">삭제</a>
+            </div>
+        {% endif %}
+        {% block script %}
+        <script type='text/javascript'>
+        $(document).ready(function(){
+            $(".delete").on('click', function(){
+                if(confirm("정말로 삭제하시겠습니까?")) {
+                    location.href = $(this).data('uri');
+                }
+            });
+        });
+        </script>
+        {% endblock %}
+    </div>
+
+    <!-- 답변 목록 카운트 및 출력 -->
+    <h5 class="border-bottom my-3 py-2">{{ question.answer_set|length }}개의 답변이 있습니다.</h5>
+    {% for answer in question.answer_set %}
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="card-text" style="white-space: pre-line;">{{ answer.content }}</div>
+            <div class="d-flex justify-content-end">
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div class="mb-2">{{ answer.user.username }}</div>
+                    <div>{{ answer.create_date }}</div>
+                </div>
+            </div>
+            {% if g.user == answer.user %}
+            <div class = "my-3">
+                <a href = "{{ url_for('answer.modify', answer_id=answer.id) }}"
+                    class = "btn btn-sm btn-outline-secondary">수정</a>
+                <a href = "#" class="delete btn btn-sm btn-outline-secondary"
+                   data-uri="{{ url_for('answer.delete', answer_id=answer.id) }}">삭제</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- 답변 등록 폼 -->
+    <form action="{{ url_for('answer.create', question_id=question.id) }}" method="post" class="my-3">
+        {{ form.csrf_token }}
+
+        <!-- 유효성 검증 오류 메시지 표시 -->
+        {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for field, errors in form.errors.items() %}
+            <strong>{{ form[field].label.text }}</strong>: {{ ', '.join(errors) }}<br>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <textarea {% if not g.user %}disabled{% endif %}
+                      name="content" id="content" class="form-control" rows="10"></textarea>
+        </div>
+        <input type="submit" value="답변등록" class="btn btn-primary">
+    </form>
+</div>
+{% endblock %}

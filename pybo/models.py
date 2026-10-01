@@ -1,6 +1,7 @@
+from Tools.scripts.texi2html import increment
+
 from pybo import db
-from sqlalchemy import Sequence
-from flask_sqlalchemy import SQLAlchemy
+
 
 class Question(db.Model):
     __tablename__ = 'question'
@@ -9,6 +10,9 @@ class Question(db.Model):
     subject = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text(), nullable=False)
     create_date = db.Column(db.DateTime(), nullable=False)
+    user = db.relationship('Users', backref=db.backref('question_set'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete ='CASCADE'), nullable=False)
+    modify_date = db.Column(db.DateTime(), nullable=True)
 
 class Answer(db.Model):
     __tablename__ = 'answer'
@@ -18,50 +22,14 @@ class Answer(db.Model):
     question = db.relationship('Question', backref=db.backref('answer_set'))
     content = db.Column(db.Text(), nullable=False)
     create_date = db.Column(db.DateTime(), nullable=False)
+    user = db.relationship('Users', backref=db.backref('answer_set'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete ='CASCADE'), nullable=False)
+    modify_date = db.Column(db.DateTime(), nullable=True)
 
-# class Book(db.Model):
-#     __tablename__ = 'BOOK'
-#
-#     bookid = db.Column(db.Integer, primary_key=True)
-#     bookname = db.Column(db.String(40), nullable=False)
-#     publisher = db.Column(db.String(40))
-#     price = db.Column(db.Integer)
-#
-#
-# class Customer(db.Model):
-#   __tablename__ = 'CUSTOMER'
-#
-#   custid = db.Column(db.Integer, primary_key=True)
-#   name = db.Column(db.String(40), nullable=False)
-#   address = db.Column(db.String(50))
-#   phone = db.Column(db.String(20))
-#
-#
-# class Orders(db.Model):
-#   __tablename__ = 'ORDERS'
-#
-#   orderid = db.Column(db.Integer, primary_key=True)
-#   custid = db.Column(db.Integer, db.ForeignKey('CUSTOMER.custid'))
-#   bookid = db.Column(db.Integer, db.ForeignKey('BOOK.bookid'))
-#   saleprice = db.Column(db.Integer)
-#   orderdate = db.Column(db.Date)
-#
-#   customer = db.relationship('Customer', backref=db.backref('order_set'))
-#   book = db.relationship('Book', backref=db.backref('order_set'))
-#
-#
-#   class ImportedBook(db.Model):
-#       __tablename__ = 'IMPORTED_BOOK'
-#
-#       bookid = db.Column(db.Integer, primary_key=True)
-#       bookname = db.Column(db.String(40), nullable=False)
-#       publisher = db.Column(db.String(40))
-#       price = db.Column(db.Integer)
-#
-#   class NewBook(db.Model):
-#       __tablename__ = 'NEWBOOK'
-#
-#       bookid = db.Column(db.Integer, primary_key=True)
-#       bookname = db.Column(db.String(40), nullable=False)
-#       publisher = db.Column(db.String(40))
-#       price = db.Column(db.Integer)
+class Users(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, db.Sequence('users_seq', start=1, increment=1), primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)

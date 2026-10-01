@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ 게시판 - SelfShop AI agent{% endblock %}
+
+{% block content %}
+<div class="container my-3">
+    <h5 class="border-bottom pb-2">질문 등록</h5>
+    <form method="post" class="post-form my-3">
+        <!-- CSRF 보호용 숨김 토큰 렌더링 -->
+        {{ form.csrf_token }}
+
+        <!-- 폼 유효성 에러 메시지 출력 블록 -->
+        {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for field, errors in form.errors.items() %}
+                <strong>{{ form[field].label.text }}</strong>: {{ ', '.join(errors) }}<br>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label for="subject" class="form-label">제목</label>
+            <input type="text" class="form-control" name="subject" id="subject"
+                   value="{{ form.subject.data or '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea class="form-control" name="content" id="content" rows="10">{{ form.content.data or '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">저장하기</button>
+    </form>
+</div>
+{% endblock %}

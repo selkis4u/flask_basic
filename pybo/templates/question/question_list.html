@@ -1,18 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-{% if question_list %}
-    <ul>
-        {% for question in question_list %}
-        <li><a href="/detail/{{question.id}}/">{{question.subject}}</a> </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>질문이 없습니다.</p>
-{% endif %}
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}FAQ 게시판 - SelfShop AI agent{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold mb-2">FAQ BOARD</span>
+      <h2 class="fw-bold text-dark m-0">FAQ 게시판</h2>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light border-bottom">
+          <tr class="text-center small">
+            <th>번호</th>
+            <th style="width: 50%">제목</th>
+            <th>글쓴이</th>
+            <th>작성일시</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if question_list %}
+          {% for question in question_list.items %}
+          <tr>
+            <td class="px-4 text-center text-muted small">
+                {{ question_list.total - ((question_list.page - 1) * question_list.per_page) - loop.index0 }}
+            </td>
+            <td class="text-center small">
+              <a href="{{ url_for('question.detail', question_id=question.id) }}" class="text-decoration-none text-dark fw-semibold hover-primary">
+                {{ question.subject }}
+              </a>
+              {% if question.answer_set|length > 0 %}
+              <span class="badge bg-secondary-subtle text-secondary ms-2 small">{{ question.answer_set|length }}</span>
+              {% endif %}
+            </td>
+            <td class="text-center small"> {{ question.user.username }}</td>
+            <td class="text-center px-4 text-muted small">{{ question.create_date.strftime('%Y-%m-%d %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="3" class="text-center py-5 text-muted">등록된 질문이 없습니다.</td>
+          </tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+      <!--페이징처리 시작-->
+        <ul class="pagination justify-content-center">
+            <!--이전 페이지-->
+            {% if question_list.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ question_list.prev_num }}">이전</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" tabindex="-1" aria-disabled="true" href="#">이전</a>
+            </li>
+            {% endif %}
+
+            {% for page_num in question_list.iter_pages() %}
+                {%  if page_num %}
+                    {% if page_num != question_list.page %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                    {%  else %}
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="#">{{ page_num }}</a>
+                    </li>
+                    {% endif %}
+                {% else %}
+                    <li class="disabled">
+                        <a class="page-link" href="#">...</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <!--다음페이지 -->
+            {% if question_list.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ question_list.next_num }}">다음</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <a class="page-link"tabindex="-1" aria-disabled="true" href="#">다음</a>
+            </li>
+            {% endif %}
+        </ul>
+    <!--페이징처리 끝-->
+
+  </div>
+    <a href="{{ url_for('question.create')}}" class="btn btn-primary mt-3 ms-3">질문 등록하기</a>
+</div>
+{% endblock %}
