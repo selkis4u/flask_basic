@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
   <!-- 공통 네비게이션 바 -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
   <div class="container-fluid px-lg-5">
@@ -13,28 +21,23 @@
 
     <!-- 메뉴 영역: d-none, d-lg-flex 제거 -->
     <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-        <!-- 주요 서비스 메뉴 -->
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3 fw-semibold">
-            <li class="nav-item">
-                <a class="nav-link text-dark hover-primary" href="/#carousel-section">서비스 소개</a>
+        {% if g.user %}
+        <ul class="navbar-nav gap-4 fw-semibold text-secondary">
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#carousel-section">서비스 소개</a></li>
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('question._list') }}">FAQ 게시판</a></li>
+            <li class="nav-item"><a class = "nav-link" href="{{ url_for('auth.logout') }}">{{ g.user.username }} (로그아웃)</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-dark hover-primary" href="{{ url_for('question._list') }}">FAQ 게시판</a>
-            </li>
-        <!-- 사용자 인증 메뉴  -->
-            {% if g.user %}
-            <li class="nav-item d-flex align-items-center">
-                <a class="nav-link text-secondary" href="{{ url_for('auth.logout') }}">{{ g.user.username }} 로그아웃</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-                <a class="nav-link text-dark hover-primary" href="{{ url_for('auth.login') }}">로그인</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-dark hover-primary" href="{{ url_for('auth.signup') }}">계정생성</a>
-            </li>
-            {% endif %}
         </ul>
+        {% else %}
+        <ul class="navbar-nav gap-4 fw-semibold text-secondary">
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#carousel-section">서비스 소개</a></li>
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('auth.signup') }}">계정생성</a></li>
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('auth.login') }}">로그인</a></li>
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('question._list') }}">FAQ 게시판</a></li>
+        </ul>
+        {% endif %}
     </div>
   </div>
 </nav>
+</body>
+</html>
