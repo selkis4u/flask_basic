@@ -21,12 +21,21 @@
 
     <!-- 메뉴 영역: d-none, d-lg-flex 제거 -->
     <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-      <ul class="navbar-nav gap-4 fw-semibold text-secondary">
-        <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#carousel-section">서비스 소개</a></li>
-        <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#">계정생성</a></li>
-        <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#">로그인</a></li>
-        <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('question._list') }}">FAQ 게시판</a></li>
-      </ul>
+        {% if g.user %}
+        <ul class="navbar-nav gap-4 fw-semibold text-secondary">
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#carousel-section">서비스 소개</a></li>
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('question._list') }}">FAQ 게시판</a></li>
+            <li class="nav-item"><a class = "nav-link" href="{{ url_for('auth.logout') }}">{{ g.user.username }} (로그아웃)</a>
+            </li>
+        </ul>
+        {% else %}
+        <ul class="navbar-nav gap-4 fw-semibold text-secondary">
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="/#carousel-section">서비스 소개</a></li>
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('auth.signup') }}">계정생성</a></li>
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('auth.login') }}">로그인</a></li>
+            <li class="nav-item"><a class="nav-link text-dark hover-primary" href="{{ url_for('question._list') }}">FAQ 게시판</a></li>
+        </ul>
+        {% endif %}
     </div>
   </div>
 </nav>

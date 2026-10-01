@@ -15,20 +15,21 @@
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light border-bottom">
-          <tr class="text-secondary small">
-            <th class="py-3 px-4" style="width: 10%;">번호</th>
-            <th class="py-3" style="width: 65%;">제목</th>
-            <th class="py-3 text-end px-4" style="width: 25%;">작성일시</th>
+          <tr class="text-center small">
+            <th>번호</th>
+            <th style="width: 50%">제목</th>
+            <th>글쓴이</th>
+            <th>작성일시</th>
           </tr>
         </thead>
         <tbody>
         {% if question_list %}
           {% for question in question_list.items %}
           <tr>
-            <td class="px-4 text-muted small">
+            <td class="px-4 text-center text-muted small">
                 {{ question_list.total - ((question_list.page - 1) * question_list.per_page) - loop.index0 }}
             </td>
-            <td>
+            <td class="text-center small">
               <a href="{{ url_for('question.detail', question_id=question.id) }}" class="text-decoration-none text-dark fw-semibold hover-primary">
                 {{ question.subject }}
               </a>
@@ -36,7 +37,8 @@
               <span class="badge bg-secondary-subtle text-secondary ms-2 small">{{ question.answer_set|length }}</span>
               {% endif %}
             </td>
-            <td class="text-end px-4 text-muted small">{{ question.create_date.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td class="text-center small"> {{ question.user.username }}</td>
+            <td class="text-center px-4 text-muted small">{{ question.create_date.strftime('%Y-%m-%d %H:%M') }}</td>
           </tr>
           {% endfor %}
         {% else %}

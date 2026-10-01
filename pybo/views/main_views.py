@@ -12,6 +12,7 @@ def hello_pybo():
 @bp.route('/')
 def index():
   return render_template('index.html')
+
 # def index():
 #   return redirect(url_for('question._list'))
 
@@ -21,13 +22,3 @@ def index():
 # def detail(question_id):
 #   question = Question.query.get_or_404(question_id)
 #   return render_template('question/question_detail.html', question=question)
-
-
-
-#@bp.route('/list')
-# def book_list():
-#   # 도서 번호(bookid) 오름차순으로 전체 도서 조회
-#   books = Book.query.order_by(Book.bookid.asc()).all()
-#
-#   # 템플릿으로 데이터 전달
-#   return render_template('/book_list.html', books=books)
